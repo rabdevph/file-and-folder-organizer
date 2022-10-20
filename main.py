@@ -1,7 +1,8 @@
 '''
-• refactor code - use functions
 • create readme.md file for instruction
+• rename variables
 • rename main file
+• fix path - DOWNLOADS folder
 '''
 import shutil
 import logging
@@ -10,13 +11,30 @@ from pathlib import Path
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
+
+def move_file(data_dict, extension, file_item, file_name, new_path):
+    '''Check file then move it to proper directory.'''
+    # extension - file extension
+    # file_item - file
+    for category, extensions in data_dict.items():
+        if extension in extensions:
+            # Move item(file/s) to its proper directory.
+            shutil.move(file_item, new_path / f'{category.upper()}')
+            logging.info(f"[{file_name}] MOVED TO {new_path / f'{category.upper()}'}.")
+
+        
+        if extension not in extension:
+            # Move to OTHER directory.
+            shutil.move(file_item, new_path / 'OTHER')
+            logging.info(f"[{file_item}] MOVED TO {new_path / 'OTHER'}.")
+        
+
+
 directory_path = Path.home() / 'Desktop' / 'Downloads'
 
-# print(directory_path.is_dir())  # check if directory is existing
-
-items = {
-    'folders': ['FOLDERS', 'AUDIOS', 'COMPRESSED', 'DATABASES', 'EXES', 'IMAGES',
-                 'OTHERS', 'SPREADSHEETS', 'TEXTS', 'VIDEOS',],
+items_dict = {
+    'folder': ['FOLDER', 'AUDIO', 'COMPRESSED', 'DATABASE', 'EXE', 'IMAGE',
+                 'OTHER', 'SPREADSHEET', 'TEXT', 'VIDEO',],
     'audio': ['.m4a', '.flac', '.mp3', '.wav', '.wma', '.aac'],
     'compressed': ['.zip', '.rar'],
     'database': ['.csv', '.db', '.log', '.mdb', '.sql', '.xml'],
@@ -28,11 +46,11 @@ items = {
     }
 
 # Check if folder/s is existing. 
-for folder in items['folders']:
+for folder in items_dict['folder']:
     # If not existing, create/make.
     if not (directory_path / folder).is_dir():
         Path(directory_path / folder).mkdir()
-        logging.info(f"{folder} DIRECTORY CREATED IN {directory_path}")
+        logging.info(f"[{folder}] DIRECTORY CREATED IN {directory_path}")
 
 items_in_folder = list(directory_path.glob('*'))
 for item in items_in_folder:
@@ -40,65 +58,14 @@ for item in items_in_folder:
     if item.is_dir():
         folder_name = PurePath(item).name
         # Check item(folder/directory) is not in items['folders'].
-        if folder_name not in items['folders']:
+        if folder_name not in items_dict['folder']:
             # Move item(folder/directory) to 'FOLDERS'.
-            shutil.move(item, directory_path / 'FOLDERS')
-            logging.info(f"{folder_name} MOVED TO {directory_path / 'FOLDERS'}.")
+            shutil.move(item, directory_path / 'FOLDER')
+            logging.info(f"{folder_name} MOVED TO {directory_path / 'FOLDER'}.")
             
     # Item is file.
     elif item.is_file():
-        file_name = Path(PurePath(item).name)
+        name_of_file = Path(PurePath(item).name)
+        file_extension = name_of_file.suffix
 
-        # Item is audio file.
-        if (file_name.suffix in items['audio']):
-            # Move item(file/s) to 'AUDIOS'.
-            shutil.move(item, directory_path / 'AUDIOS')
-            logging.info(f"{file_name} MOVED TO {directory_path / 'AUDIOS'}.")
-
-        # Item is compressed file.
-        elif (file_name.suffix in items['compressed']):
-            # Move item(file/s) to 'COMPRESSED'.
-            shutil.move(item, directory_path / 'COMPRESSED')
-            logging.info(f"{file_name} MOVED TO {directory_path / 'COMPRESSED'}.")
-
-        # Item is database file.
-        elif (file_name.suffix in items['database']):
-            # Move item(file/s) to 'DATABASES'.
-            shutil.move(item, directory_path / 'DATABASES')
-            logging.info(f"{file_name} MOVED TO {directory_path / 'DATABASES'}.")
-        
-        # Item is executable file.
-        elif (file_name.suffix in items['exe']):
-            # Move item(file/s) to 'EXES'.
-            shutil.move(item, directory_path / 'EXES')
-            logging.info(f"{file_name} MOVED TO {directory_path / 'EXES'}.")
-
-        # Item is image file.
-        elif (file_name.suffix in items['image']):
-            # Move item(file/s) to 'IMAGES'.
-            shutil.move(item, directory_path / 'IMAGES')
-            logging.info(f"{file_name} MOVED TO {directory_path / 'IMAGES'}.")
-
-        # Item is spreadsheet file.
-        elif (file_name.suffix in items['spreadsheet']):
-            # Move item(file/s) to 'SPREADSHEETS'.
-            shutil.move(item, directory_path / 'SPREADSHEETS')
-            logging.info(f"{file_name} MOVED TO {directory_path / 'SPREADSHEETS'}.")
-
-        # Item is text file.
-        elif (file_name.suffix in items['text']):
-            # Move item(file/s) to 'TEXTS'.
-            shutil.move(item, directory_path / 'TEXTS')
-            logging.info(f"{file_name} MOVED TO {directory_path / 'TEXTS'}.")
-
-        # Item is video file.
-        elif (file_name.suffix in items['video']):
-            # Move item(file/s) to 'VIDEOS'.
-            shutil.move(item, directory_path / 'VIDEOS')
-            logging.info(f"{file_name} MOVED TO {directory_path / 'VIDEOS'}.")
-
-        # Item is other file.
-        else:
-            # Move item(file/s) to 'OTHERS'.
-            shutil.move(item, directory_path / 'OTHERS')
-            logging.info(f"{file_name} MOVED TO {directory_path / 'OTHERS'}.")
+        move_file(items_dict, file_extension, item, name_of_file, directory_path)
