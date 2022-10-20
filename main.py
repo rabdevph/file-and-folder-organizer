@@ -1,6 +1,6 @@
 '''
 • create readme.md file for instruction
-• rename variables
+• rename variables - make proper
 • rename main file
 • fix path - DOWNLOADS folder
 '''
@@ -16,19 +16,21 @@ def move_file(data_dict, extension, file_item, file_name, new_path):
     '''Check file then move it to proper directory.'''
     # extension - file extension
     # file_item - file
+
+    file_moved = False
+    # Format is in items dictionary.
     for category, extensions in data_dict.items():
         if extension in extensions:
             # Move item(file/s) to its proper directory.
             shutil.move(file_item, new_path / f'{category.upper()}')
-            logging.info(f"[{file_name}] MOVED TO {new_path / f'{category.upper()}'}.")
+            logging.info(f"[{file_name}] moved to {(new_path / f'{category.upper()}').name} directory.")
+            file_moved = True
 
-        
-        if extension not in extension:
-            # Move to OTHER directory.
-            shutil.move(file_item, new_path / 'OTHER')
-            logging.info(f"[{file_item}] MOVED TO {new_path / 'OTHER'}.")
-        
-
+    if not file_moved:
+        # Move to OTHER directory.
+        shutil.move(file_item, new_path / 'OTHER')
+        logging.info(f"[{file_name}] moved to {(new_path / 'OTHER').name} directory.")
+    
 
 directory_path = Path.home() / 'Desktop' / 'Downloads'
 
@@ -50,7 +52,7 @@ for folder in items_dict['folder']:
     # If not existing, create/make.
     if not (directory_path / folder).is_dir():
         Path(directory_path / folder).mkdir()
-        logging.info(f"[{folder}] DIRECTORY CREATED IN {directory_path}")
+        logging.info(f"New directory [{folder}] created.")
 
 items_in_folder = list(directory_path.glob('*'))
 for item in items_in_folder:
@@ -61,11 +63,11 @@ for item in items_in_folder:
         if folder_name not in items_dict['folder']:
             # Move item(folder/directory) to 'FOLDERS'.
             shutil.move(item, directory_path / 'FOLDER')
-            logging.info(f"{folder_name} MOVED TO {directory_path / 'FOLDER'}.")
+            logging.info(f"[{folder_name}] moved to {(directory_path / 'FOLDER').name} directory.")
             
     # Item is file.
     elif item.is_file():
         name_of_file = Path(PurePath(item).name)
         file_extension = name_of_file.suffix
-
+        # Move to proper directory.
         move_file(items_dict, file_extension, item, name_of_file, directory_path)
